@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Finance Tracker - Login</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+
+        .login-card {
+            width: 400px;
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: #334155;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .login-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #loginMessage {
+            text-align: center;
+            margin-top: 15px;
+            min-height: 20px;
+        }
+
+        .signup-text {
+            text-align: center;
+            margin-top: 25px;
+            color: #64748b;
+        }
+
+        .signup-link {
+            color: #2563eb;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .signup-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+
+        <div class="logo">💰</div>
+
+        <h1>Finance Tracker</h1>
+
+        <p class="subtitle">
+            Login to manage your money
+        </p>
+
+        <form id="loginForm">
+
+            <label>Username</label>
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter username"
+                required
+            >
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter password"
+                required
+            >
+
+            <button
+                type="submit"
+                class="login-btn"
+                id="loginButton">
+                Login
+            </button>
+
+        </form>
+
+        <div id="loginMessage"></div>
+
+        <div class="signup-text">
+
+            Don't have an account?
+
+            <a
+                href="signup.html"
+                class="signup-link">
+                Create Account
+            </a>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const LOGIN_URL =
+            "http://localhost:8083/api/auth/login";
+
+
+        document
+            .getElementById("loginForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    const username =
+                        document
+                        .getElementById("username")
+                        .value
+                        .trim();
+
+
+                    const password =
+                        document
+                        .getElementById("password")
+                        .value;
+
+
+                    const message =
+                        document
+                        .getElementById("loginMessage");
+
+
+                    const button =
+                        document
+                        .getElementById("loginButton");
+
+
+                    if (
+                        username === "" ||
+                        password === ""
+                    ) {
+
+                        message.textContent =
+                            "Please enter username and password.";
+
+                        message.style.color =
+                            "red";
+
+                        return;
+                    }
+
+
+                    button.disabled = true;
+
+                    button.textContent =
+                        "Logging in...";
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                LOGIN_URL,
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+                                            username:
+                                                username,
+
+                                            password:
+                                                password
+                                        })
+                                }
+                            );
+
+
+                        const result =
+                            await response.text();
+
+
+                        console.log(
+                            "Login status:",
+                            response.status
+                        );
+
+
+                        console.log(
+                            "Login response:",
+                            result
+                        );
+
+
+                        if (
+                            response.ok &&
+                            result.trim() ===
+                            "Login successful"
+                        ) {
+
+                            message.textContent =
+                                "Login successful!";
+
+                            message.style.color =
+                                "green";
+
+
+                            localStorage.setItem(
+                                "loggedInUser",
+                                username
+                            );
+
+
+                            setTimeout(
+                                function() {
+
+                                    window.location.href =
+                                        "index.html";
+
+                                },
+                                500
+                            );
+
+
+                        } else {
+
+                            message.textContent =
+                                result ||
+                                "Invalid username or password.";
+
+                            message.style.color =
+                                "red";
+                        }
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Login error:",
+                            error
+                        );
+
+
+                        message.textContent =
+                            "Cannot connect to Spring Boot. " +
+                            "Make sure it is running on port 8083.";
+
+                        message.style.color =
+                            "red";
+
+                    }
+
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Login";
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>
